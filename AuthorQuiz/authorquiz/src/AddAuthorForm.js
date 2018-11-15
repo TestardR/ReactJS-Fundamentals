@@ -1,5 +1,7 @@
 import React from 'react';
 import './AddAuthorForm.css';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 
 class AuthorForm extends React.Component {
   constructor(props) {
@@ -80,4 +82,20 @@ function AddAuthorForm({ match, onAddAuthor }) {
   );
 }
 
-export default AddAuthorForm;
+function mapDispatchToProps(dispatch, props) {
+  return {
+    onAddAuthor: author => {
+      dispatch({ type: 'ADD_AUTHOR', author });
+      props.history.push('/');
+    }
+  };
+}
+
+// as we dont need to read anything from the redux store, mapStateToProps is an empty function
+// withRouter to redirect our user after adding an author
+export default withRouter(
+  connect(
+    () => {},
+    mapDispatchToProps
+  )(AddAuthorForm)
+);

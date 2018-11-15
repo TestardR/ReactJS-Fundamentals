@@ -1,6 +1,8 @@
-import React, { Component } from 'react';
+import React from 'react';
 import './App.css';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
+// to connect our app to the redux store we use the connect function
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
@@ -97,9 +99,32 @@ function Footer() {
     </div>
   );
 }
+// content of the current store that we need for the AuthorQuiz component
+function mapStateToProps(state) {
+  return {
+    turnData: state.turnData,
+    highlight: state.highlight
+  };
+}
+// events that come out of the AuthorQuiz to actions that we want to publish to the store
+function mapDispatchToProps(dispatch) {
+  return {
+    onAnswerSelected: answer => {
+      dispatch({ type: 'ANSWER_SELECTED', answer });
+    },
+    onContinue: () => {
+      dispatch({ type: 'CONTINUE' });
+    }
+  };
+}
 
 // onClick : we pass the props up to the parent (Book => Turn => AuthorQuiz)
-function AuthorQuiz({ turnData, highlight, onAnswerSelected, onContinue }) {
+// connect to connect AuthoQuiz to the store
+const AuthorQuiz = connect(
+  mapStateToProps,
+  mapDispatchToProps
+  // we can see below the props that we need to provide to AuthoQuiz
+)(function({ turnData, highlight, onAnswerSelected, onContinue }) {
   return (
     <div className="container-fluid">
       <Hero />
@@ -115,5 +140,5 @@ function AuthorQuiz({ turnData, highlight, onAnswerSelected, onContinue }) {
       <Footer />
     </div>
   );
-}
+});
 export default AuthorQuiz;
