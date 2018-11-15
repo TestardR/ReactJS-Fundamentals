@@ -2,8 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import AuthorQuiz from './AuthorQuiz';
-import * as serviceWorker from './serviceWorker';
 import { shuffle, sample } from 'underscore';
+import { BrowserRouter, Route, withRouter } from 'react-router-dom';
+import AddAuthorForm from './AddAuthorForm';
 
 const authors = [
   {
@@ -65,10 +66,14 @@ function getTurnData(authors) {
   };
 }
 
-const state = {
-  turnData: getTurnData(authors),
-  highlight: ''
-};
+function resetState() {
+  return {
+    turnData: getTurnData(authors),
+    highlight: ''
+  };
+}
+
+let state = resetState();
 
 function onAnswerSelected(answer) {
   // among all the books, is there one matching the answer ?
@@ -78,11 +83,40 @@ function onAnswerSelected(answer) {
   render();
 }
 
+function App() {
+  return (
+    <AuthorQuiz
+      {...state}
+      onAnswerSelected={onAnswerSelected}
+      onContinue={() => {
+        state = resetState();
+        render();
+      }}
+    />
+  );
+}
+
+// we created a wrapper, intermediary to specify props
+const AuthorWrapper = withRouter(({ history }) => (
+  <AddAuthorForm
+    onAddAuthor={author => {
+      authors.push(author);
+      history.push('/');
+    }}
+  />
+));
+
 // onClick : passing the prop to the parent, to define the function at the higher level
 // function to rerender react
 function render() {
   ReactDOM.render(
-    <AuthorQuiz {...state} onAnswerSelected={onAnswerSelected} />,
+    // React complained that we had 2 routes for one parent BrowserRouter, we grouped them under React.Fragment
+    <BrowserRouter>
+      <React.Fragment>
+        <Route exact path="/" component={App} />
+        <Route path="/add" component={AuthorWrapper} />
+      </React.Fragment>
+    </BrowserRouter>,
     document.getElementById('root')
   );
 }
